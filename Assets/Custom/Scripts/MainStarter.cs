@@ -91,5 +91,7 @@ public class MainStarter : MonoBehaviour
     var c = Instantiate(Cube, location, rotation) as GameObject;
     //Rotate around it's own up axis so up points TO the camera
     c.transform.RotateAround(location, transform.up, 180f);
+    var m = c.GetComponent<CubeManipulator>();
+    m.Id = id;
   }
 }
