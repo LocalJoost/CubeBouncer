@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using HoloToolkit.Unity;
 
 public class MainStarter : MonoBehaviour
@@ -9,6 +10,7 @@ public class MainStarter : MonoBehaviour
 
   private bool _distanceMeasured;
   private DateTimeOffset _lastInitTime;
+  private readonly List<GameObject> _cubes = new List<GameObject>();
 
   // Use this for initialization
   void Start()
@@ -86,6 +88,20 @@ public class MainStarter : MonoBehaviour
     while (z <= maxZ);
   }
 
+
+
+  public void CreateNewGrid()
+  {
+    foreach (var c in _cubes)
+    {
+      Destroy(c);
+    }
+    _cubes.Clear();
+
+    _distanceMeasured = false;
+    _lastInitTime = DateTimeOffset.Now;
+  }
+  
   private void CreateCube(int id, Vector3 location, Quaternion rotation)
   {
     var c = Instantiate(Cube, location, rotation) as GameObject;
@@ -93,5 +109,6 @@ public class MainStarter : MonoBehaviour
     c.transform.RotateAround(location, transform.up, 180f);
     var m = c.GetComponent<CubeManipulator>();
     m.Id = id;
+    _cubes.Add(c);
   }
 }
