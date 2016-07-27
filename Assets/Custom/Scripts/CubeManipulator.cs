@@ -16,6 +16,8 @@ public class CubeManipulator : MonoBehaviour
 
   public AudioClip BounceOtherClip;
 
+  public AudioClip ComeBackClip;
+
   private Vector3 _orginalPosition;
 
   private Quaternion _originalRotation;
@@ -69,8 +71,19 @@ public class CubeManipulator : MonoBehaviour
     }
   }
 
-  public IEnumerator OnRevert()
+  public void OnDrop()
   {
+    _rigidBody.useGravity = true;
+  }
+
+  public IEnumerator OnRevert(object doPlaySound)
+  {
+    if ((bool) doPlaySound)
+    {
+      _audioSource.PlayOneShot(ComeBackClip);
+    }
+    _rigidBody.useGravity = false;
+
     var recallPosition = transform.position;
     var recallRotation = transform.rotation;
 

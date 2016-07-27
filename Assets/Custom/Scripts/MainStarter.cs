@@ -12,11 +12,18 @@ public class MainStarter : MonoBehaviour
   private DateTimeOffset _lastInitTime;
   private readonly List<GameObject> _cubes = new List<GameObject>();
 
+  public AudioClip ReadyClip;
+
+  public AudioClip ReturnAllClip;
+
+  private AudioSource _audioSource;
+
   // Use this for initialization
   void Start()
   {
     _distanceMeasured = false;
     _lastInitTime = DateTimeOffset.Now;
+    _audioSource = GetComponent<AudioSource>();
   }
 
   // Update is called once per frame
@@ -24,7 +31,7 @@ public class MainStarter : MonoBehaviour
   {
     if (!_distanceMeasured)
     {
-      if(GazeManager.Instance.Hit)
+      if (GazeManager.Instance.Hit)
       {
         _distanceMeasured = true;
         CreateGrid(GazeManager.Instance.Position);
@@ -32,7 +39,7 @@ public class MainStarter : MonoBehaviour
       else
       {
         // If we can't find a wall in 10 seconds, create a default grid 
-        if((_lastInitTime - DateTimeOffset.Now).Duration() > TimeSpan.FromSeconds(10))
+        if ((_lastInitTime - DateTimeOffset.Now).Duration() > TimeSpan.FromSeconds(10))
         {
           _distanceMeasured = true;
           CreateGrid(CalculatePositionDeadAhead());
@@ -49,6 +56,8 @@ public class MainStarter : MonoBehaviour
 
   private void CreateGrid(Vector3 hitPosition)
   {
+    _audioSource.PlayOneShot(ReadyClip);
+
     var gazeOrigin = Camera.main.transform.position;
     var rotation = Camera.main.transform.rotation;
 
@@ -101,7 +110,7 @@ public class MainStarter : MonoBehaviour
     _distanceMeasured = false;
     _lastInitTime = DateTimeOffset.Now;
   }
-  
+
   private void CreateCube(int id, Vector3 location, Quaternion rotation)
   {
     var c = Instantiate(Cube, location, rotation) as GameObject;
@@ -110,5 +119,22 @@ public class MainStarter : MonoBehaviour
     var m = c.GetComponent<CubeManipulator>();
     m.Id = id;
     _cubes.Add(c);
+  }
+
+  public void RevertAll()
+  {
+    _audioSource.PlayOneShot(ReturnAllClip);
+    foreach (var c in _cubes)
+    {
+      c.SendMessage("OnRevert", false);
+    }
+  }
+
+  public void DropAll()
+  {
+    foreach (var c in _cubes)
+    {
+      c.SendMessage("OnDrop");
+    }
   }
 }
